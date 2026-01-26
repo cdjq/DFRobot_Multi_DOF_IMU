@@ -1,0 +1,51 @@
+#######################################
+# Syntax Map For DFRobot_Multi_DOF_IMU
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+DFRobot_Multi_DOF_IMU	KEYWORD1
+DFRobot_Multi_DOF_IMU_I2C	KEYWORD1
+DFRobot_Multi_DOF_IMU_UART	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+setAccelRange	KEYWORD2
+setGyroRange	KEYWORD2
+setSensorMode	KEYWORD2
+get6dofData	KEYWORD2
+get6AxisRawData	KEYWORD2
+getAccelData	KEYWORD2
+getGyroData	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+eAccelRange2G	LITERAL1
+eAccelRange4G	LITERAL1
+eAccelRange8G	LITERAL1
+eAccelRange16G	LITERAL1
+eGyroRange125DPS	LITERAL1
+eGyroRange250DPS	LITERAL1
+eGyroRange500DPS	LITERAL1
+eGyroRange1000DPS	LITERAL1
+eGyroRange2000DPS	LITERAL1
+eSleepMode	LITERAL1
+eLowPowerMode	LITERAL1
+eNormalMode	LITERAL1
+eHighPerformanceMode	LITERAL1
+sImuRawData_t	LITERAL1
+sSensorData_t	LITERAL1
+RET_CODE_OK	LITERAL1
+RET_CODE_ERROR	LITERAL1
