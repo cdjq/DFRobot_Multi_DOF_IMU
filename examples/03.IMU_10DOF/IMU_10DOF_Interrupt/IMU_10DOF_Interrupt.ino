@@ -18,8 +18,13 @@
 // #define IMU_COMM_UART
 #define IMU_COMM_I2C
 
-/* Pressure calibration (optional): */
+/* Altitude calibration (optional): */
 #define CALIBRATE_ABSOLUTE_DIFFERENCE
+#ifdef CALIBRATE_ABSOLUTE_DIFFERENCE
+const bool CALCULATE_ALTITUDE = true;
+#else
+const bool CALCULATE_ALTITUDE = false;
+#endif
 
 const uint8_t ADDR = 0x4A;
 
@@ -119,9 +124,9 @@ void setup()
   delay(1000);
 
 #if defined(CALIBRATE_ABSOLUTE_DIFFERENCE)
-  // Calibrate pressure sensor based on local altitude (540m in this example)
-  Serial.print("[5] Calibrating pressure sensor (altitude 540m)... ");
-  imu.calibratePress(540.0);
+  // Calibrate altitude data based on local altitude (540m in this example)
+  Serial.print("[5] Calibrating altitude (reference 540m)... ");
+  imu.calibrateAltitude(540.0);
   delay(1000);
 #endif
 
@@ -165,8 +170,8 @@ void setup()
 #endif
   attachInterrupt(digitalPinToInterrupt(interruptPin), int1ISR, RISING);
 #elif defined(ARDUINO_SAM_ZERO)
-  // Pin 6 is used as interrupt pin by default, other non-conflicting pins can also be selected as external interrupt pins
-  attachInterrupt(digitalPinToInterrupt(6) /* Query the interrupt number of the 6 pin */, int1ISR, RISING);
+  // Pin 5 is used as interrupt pin by default, other non-conflicting pins can also be selected as external interrupt pins
+  attachInterrupt(digitalPinToInterrupt(5) /* Query the interrupt number of the 5 pin */, int1ISR, RISING);
 #else
   /* The Correspondence Table of AVR Series Arduino Interrupt Pins And Terminal Numbers
      * ---------------------------------------------------------------------------------------
@@ -211,7 +216,7 @@ void setup()
 #elif defined(ESP8266)
   attachInterrupt(digitalPinToInterrupt(16), int4ISR, RISING);
 #elif defined(ARDUINO_SAM_ZERO)
-  attachInterrupt(digitalPinToInterrupt(8), int4ISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(9), int4ISR, RISING);
 #else
   attachInterrupt(/*Interrupt No*/ 2, int4ISR, RISING);
 #endif
@@ -219,7 +224,7 @@ void setup()
   Serial.println("Trigger mode: Rising edge");
 
   Serial.println("\nConfiguration complete, starting data reading");
-  Serial.println("AccX(g), AccY(g), AccZ(g), GyrX(dps), GyrY(dps), GyrZ(dps), MagX(uT), MagY(uT), MagZ(uT), Pressure(Pa)");
+  Serial.println(CALCULATE_ALTITUDE ? "AccX(g), AccY(g), AccZ(g), GyrX(dps), GyrY(dps), GyrZ(dps), MagX(uT), MagY(uT), MagZ(uT), Altitude(m)" : "AccX(g), AccY(g), AccZ(g), GyrX(dps), GyrY(dps), GyrZ(dps), MagX(uT), MagY(uT), MagZ(uT), Pressure(Pa)");
   delay(100);
 }
 
@@ -240,9 +245,9 @@ void loop()
       int4DataReady = false;
 
       DFRobot_Multi_DOF_IMU::sSensorData_t accel, gyro, mag;
-      float                                pressureValue;    // Pressure data (unit: Pa)
+      float                                pressureValue;    // Pressure (Pa) or altitude (m), depends on CALCULATE_ALTITUDE
 
-      if (imu.get10dofData(&accel, &gyro, &mag, &pressureValue)) {
+      if (imu.get10dofData(&accel, &gyro, &mag, &pressureValue, CALCULATE_ALTITUDE)) {
         Serial.print(accel.x, 3);
         Serial.print(", ");
         Serial.print(accel.y, 3);

@@ -197,16 +197,16 @@ To use this library, first download the library files, paste them into the \Ardu
   bool get10dofData(sSensorData_t *accel, sSensorData_t *gyro, sSensorData_t *mag, float *pressure, bool calcAltitude = false);
 
   /**
-   * @fn calibratePress
-   * @brief Calibrate barometric pressure data based on local altitude
+   * @fn calibrateAltitude
+   * @brief Calibrate altitude data based on local altitude
    * @param altitude Local altitude (unit: m)
    * @n For example: 540.0 means altitude of 540 meters
-   * @n After calling this function, the pressure data in get10dofData will be calibrated to eliminate absolute errors
+   * @n After calling this function, the altitude in get10dofData (when calcAltitude is true) will be calibrated to eliminate absolute errors
    * @return bool
    * @retval true  Calibration successful (altitude > 0)
    * @retval false Calibration failed (altitude <= 0)
    */
-  bool calibratePress(float altitude);
+  bool calibrateAltitude(float altitude);
 
   /**
    * @fn setPressOOR

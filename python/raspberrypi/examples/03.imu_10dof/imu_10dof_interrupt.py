@@ -33,9 +33,10 @@ DEV_ADDR = 0x4A
 mode = "I2C"
 
 '''!
-  @brief Pressure calibration (optional)
+  @brief Altitude calibration (optional)
 '''
 CALIBRATE_ABSOLUTE_DIFFERENCE = True
+CALCULATE_ALTITUDE = True if CALIBRATE_ABSOLUTE_DIFFERENCE else False
 
 '''!
   @brief GPIO pins for interrupt (BCM mode)
@@ -121,11 +122,11 @@ def setup():
   time.sleep(1)
 
   '''!
-      @brief Calibrate pressure sensor (optional)
+      @brief Calibrate altitude (optional)
   '''
   if CALIBRATE_ABSOLUTE_DIFFERENCE:
-    print("[5] Calibrating pressure sensor (altitude 540m)... ", end="")
-    imu.calibrate_press(540.0)
+    print("[5] Calibrating altitude (reference 540m)... ", end="")
+    imu.calibrate_altitude(540.0)
     print("Done")
     time.sleep(1)
 
@@ -178,7 +179,10 @@ def setup():
   print("    Trigger mode: Rising edge")
 
   print("\nConfiguration complete, starting data reading")
-  print("AccX(g), AccY(g), AccZ(g), GyrX(dps), GyrY(dps), GyrZ(dps), MagX(uT), MagY(uT), MagZ(uT), Pressure(Pa)\n")
+  if CALCULATE_ALTITUDE:
+    print("AccX(g), AccY(g), AccZ(g), GyrX(dps), GyrY(dps), GyrZ(dps), MagX(uT), MagY(uT), MagZ(uT), Altitude(m)\n")
+  else:
+    print("AccX(g), AccY(g), AccZ(g), GyrX(dps), GyrY(dps), GyrZ(dps), MagX(uT), MagY(uT), MagZ(uT), Pressure(Pa)\n")
 
 
 def loop():
@@ -201,7 +205,7 @@ def loop():
       int3_data_ready = False
       int4_data_ready = False
 
-      data = imu.get_10dof_data()
+      data = imu.get_10dof_data(calc_altitude=CALCULATE_ALTITUDE)
 
       if data is not None:
         print(

@@ -197,16 +197,16 @@ SKU: SEN0692/SEN0694/SEN0696
   bool get10dofData(sSensorData_t *accel, sSensorData_t *gyro, sSensorData_t *mag, float *pressure, bool calcAltitude = false);
 
   /**
-   * @fn calibratePress
-   * @brief 根据当地海拔高度校准气压数据
+   * @fn calibrateAltitude
+   * @brief 根据当地海拔高度校准海拔数据
    * @param altitude 当地海拔高度（单位：m）
    * @n 例如：540.0 表示海拔540米
-   * @n 调用此函数后，get10dofData中的气压数据将被校准，消除绝对误差
+   * @n 调用此函数后，get10dofData 中请求海拔时（calcAltitude 为 true）将使用该校准消除绝对误差
    * @return bool
    * @retval true  校准成功（海拔高度 > 0）
    * @retval false 校准失败（海拔高度 <= 0）
    */
-  bool calibratePress(float altitude);
+  bool calibrateAltitude(float altitude);
 
   /**
    * @fn setPressOOR

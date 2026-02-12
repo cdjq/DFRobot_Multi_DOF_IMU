@@ -75,6 +75,19 @@ public:
     eCommModeI2C  = 1     ///< I2C communication mode
   } eCommMode_t;
 
+  /**
+   * @enum eRegType_t
+   * @brief Register type enumeration (for UART Modbus mode)
+   * @details Define register types for Modbus RTU protocol
+   * @n In UART mode, input registers (function code 0x04) and holding registers (function code 0x03)
+   * @n have overlapping address ranges, so this enum is needed to distinguish them.
+   * @n In I2C mode, this parameter is ignored as there's only one register space.
+   */
+  typedef enum {
+    eInputReg   = 0,    ///< Input register (read-only, Modbus function code 0x04)
+    eHoldingReg = 1     ///< Holding register (read-write, Modbus function code 0x03/0x06)
+  } eRegType_t;
+
 /** Interrupt status return values (for getIntStatus return value checking) */
 /** INT1_2 interrupt status return values - 6/9/10DOF sensors */
 #define INT1_2_INT_STATUS_NO_MOTION    0x0001    ///< No motion detection interrupt
@@ -436,21 +449,20 @@ public:
   bool setGyroRange(eGyroRange_t range);
 
   /**
-   * @fn calibratePress
-   * @brief Calibrate barometric pressure data based on local altitude
+   * @fn calibrateAltitude
+   * @brief Calibrate altitude data based on local altitude
    * @param altitude Local altitude (unit: m)
    * @n For example: 540.0 means altitude of 540 meters
-   * @n After calling this function, the pressure data in get10dofData will be calibrated to eliminate absolute errors
-   * @n If this function is not called, the measurement data will not eliminate absolute errors
+   * @n After calling this function, the altitude in get10dofData (when calcAltitude is true) will be calibrated to eliminate absolute errors
+   * @n If this function is not called, the altitude measurement will not eliminate absolute errors
    * @return bool
    * @retval true  Calibration successful (altitude > 0)
    * @retval false Calibration failed (altitude <= 0)
    * @note Calibration principle:
-   * @n - Calculate sea level pressure based on local altitude
-   * @n - Calibrate measured pressure to standard sea level pressure (101325 Pa)
-   * @n - This eliminates absolute pressure errors caused by different geographical locations
+   * @n - Use local altitude as reference to correct sea-level pressure in barometric formula
+   * @n - So that reported altitude is relative to the reference point
    */
-  bool calibratePress(float altitude);
+  bool calibrateAltitude(float altitude);
 
   /**
    * @fn setPressOOR
@@ -629,9 +641,12 @@ protected:
    * @param reg Register address
    * @param data Buffer for storing read data
    * @param len Data length to read
+   * @param regType Register type (see eRegType_t), default is eInputReg
+   * @n In UART mode: eInputReg uses Modbus function code 0x04, eHoldingReg uses function code 0x03
+   * @n In I2C mode: this parameter is ignored
    * @return uint8_t Return code
    */
-  virtual uint8_t readReg(uint16_t reg, void *data, uint8_t len) = 0;
+  virtual uint8_t readReg(uint16_t reg, void *data, uint8_t len, eRegType_t regType = eInputReg) = 0;
 
   /**
    * @fn getCommMode
@@ -725,7 +740,7 @@ private:
   float          _accelRange;          ///< Accelerometer range, unit: g
   float          _gyroRange;           ///< Gyroscope range, unit: dps
   eSensorModel_t _sensorModel;         ///< Sensor model
-  bool           _calibrated;          ///< Pressure calibration flag
+  bool           _calibrated;          ///< Altitude calibration flag
   float          _sealevelAltitude;    ///< Sea level altitude (for calibration), unit: m
 };
 
@@ -755,9 +770,10 @@ private:
    * @param reg Register address
    * @param data Buffer for storing read data
    * @param len Data length to read
+   * @param regType Register type (ignored in I2C mode, kept for API compatibility)
    * @return uint8_t Return code
    */
-  virtual uint8_t readReg(uint16_t reg, void *data, uint8_t len);
+  virtual uint8_t readReg(uint16_t reg, void *data, uint8_t len, eRegType_t regType = eInputReg);
 
   /**
    * @fn getCommMode
@@ -827,11 +843,14 @@ private:
    * @param reg Register address
    * @param data Buffer for storing read data
    * @param len Data length to read
+   * @param regType Register type (see eRegType_t)
+   * @n eInputReg: Read from input registers (Modbus function code 0x04)
+   * @n eHoldingReg: Read from holding registers (Modbus function code 0x03)
    * @return uint8_t Return code
    * @retval RET_CODE_OK Read successful
    * @retval RET_CODE_ERROR Read failed
    */
-  virtual uint8_t readReg(uint16_t reg, void *data, uint8_t len);
+  virtual uint8_t readReg(uint16_t reg, void *data, uint8_t len, eRegType_t regType = eInputReg);
 
   /**
    * @fn getCommMode

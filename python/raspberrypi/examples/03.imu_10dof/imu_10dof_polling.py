@@ -4,7 +4,7 @@
 @brief  Read 10DOF IMU data example (accelerometer + gyroscope + magnetometer + barometer)
 @details  This example demonstrates how to read 10DOF IMU sensor data using I2C/UART interface.
 @n  The example initializes the sensor, configures the accelerometer and gyroscope ranges,
-@n  optionally calibrates the pressure sensor based on local altitude,
+@n  optionally calibrates altitude data based on local altitude,
 @n  then continuously reads and prints the 10DOF data (acceleration, angular velocity, magnetic field, and pressure) in the loop function.
 @copyright   Copyright (c) 2026 DFRobot Co.Ltd (http://www.dfrobot.com)
 @license     The MIT License (MIT)
@@ -32,10 +32,11 @@ DEV_ADDR = 0x4A
 mode = "I2C"
 
 '''!
-  @brief Pressure calibration (optional)
-  @n     Set to True to calibrate pressure sensor based on local altitude
+  @brief Altitude calibration (optional)
+  @n     Set to True to calibrate altitude based on local altitude
 '''
 CALIBRATE_ABSOLUTE_DIFFERENCE = True
+CALCULATE_ALTITUDE = True if CALIBRATE_ABSOLUTE_DIFFERENCE else False
 
 '''!
   @brief Create sensor object based on selected mode
@@ -92,12 +93,12 @@ def setup():
   time.sleep(1)
 
   '''!
-      @brief Calibrate pressure sensor (optional)
+      @brief Calibrate altitude (optional)
       @n     Calibrate based on local altitude (540m in this example)
   '''
   if CALIBRATE_ABSOLUTE_DIFFERENCE:
-    print("[Config] Calibrating pressure sensor (altitude 540m)... ", end="")
-    imu.calibrate_press(540.0)
+    print("[Config] Calibrating altitude (reference 540m)... ", end="")
+    imu.calibrate_altitude(540.0)
     print("Done")
 
   time.sleep(0.1)
@@ -109,14 +110,17 @@ def loop():
   @brief Read 10DOF IMU data
   @n     Returns dictionary with accel, gyro, mag data and pressure value
   '''
-  data = imu.get_10dof_data()
+  data = imu.get_10dof_data(calc_altitude=CALCULATE_ALTITUDE)
 
   if data is not None:
     print("10DOF IMU Data")
     print("Acc: X=%.3fg Y=%.3fg Z=%.3fg" % (data['accel']['x'], data['accel']['y'], data['accel']['z']))
     print("Gyr: X=%.2fdps Y=%.2fdps Z=%.2fdps" % (data['gyro']['x'], data['gyro']['y'], data['gyro']['z']))
     print("Mag: X=%.2fuT Y=%.2fuT Z=%.2fuT" % (data['mag']['x'], data['mag']['y'], data['mag']['z']))
-    print("Pressure: %.2fPa (%.2fhPa)\n" % (data['pressure'], data['pressure'] / 100.0))
+    if CALCULATE_ALTITUDE:
+      print("Altitude: %.2f m\n" % data['pressure'])
+    else:
+      print("Pressure: %.2f Pa (%.2f hPa)\n" % (data['pressure'], data['pressure'] / 100.0))
   else:
     print("Error: Failed to read sensor data!\n")
 

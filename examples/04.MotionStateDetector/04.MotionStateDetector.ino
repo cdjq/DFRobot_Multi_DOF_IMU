@@ -137,8 +137,8 @@ void setup()
 #endif
   attachInterrupt(digitalPinToInterrupt(interruptPin), interruptAnyMotion, RISING);
 #elif defined(ARDUINO_SAM_ZERO)
-  // Pin 6 is used as interrupt pin by default, other non-conflicting pins can also be selected as external interrupt pins
-  attachInterrupt(digitalPinToInterrupt(6) /* Query the interrupt number of the 6 pin */, interruptAnyMotion, RISING);
+  // Pin 5 is used as interrupt pin by default, other non-conflicting pins can also be selected as external interrupt pins
+  attachInterrupt(digitalPinToInterrupt(5) /* Query the interrupt number of the 5 pin */, interruptAnyMotion, RISING);
 #else
   /* The Correspondence Table of AVR Series Arduino Interrupt Pins And Terminal Numbers
      * ---------------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ void setup()
 #elif defined(ESP8266)
   attachInterrupt(digitalPinToInterrupt(15), interruptNoMotion, RISING);
 #elif defined(ARDUINO_SAM_ZERO)
-  attachInterrupt(digitalPinToInterrupt(7), interruptNoMotion, RISING);
+  attachInterrupt(digitalPinToInterrupt(6), interruptNoMotion, RISING);
 #else
   attachInterrupt(/*Interrupt No*/ 1, interruptNoMotion, RISING);
 #endif

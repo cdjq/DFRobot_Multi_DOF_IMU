@@ -136,7 +136,7 @@ void setup()
 #if defined(CALIBRATE_ABSOLUTE_DIFFERENCE)
   // Calibrate pressure sensor based on local altitude (540m in this example)
   Serial.print("[5] Calibrating pressure sensor (altitude 540m)... ");
-  imu.calibratePress(540.0);
+  imu.calibrateAltitude(540.0);
   delay(100);
 #endif
 

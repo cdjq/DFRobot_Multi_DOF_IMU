@@ -305,9 +305,9 @@ uint8_t DFRobot_Multi_DOF_IMU::readPressRawBytes(uint8_t *data)
 
 float DFRobot_Multi_DOF_IMU::calculateAltitude(float pressure)
 {
-  // International Standard Atmosphere formula: h = 44330 * (1 - (P/P0)^0.1903)
+  // Barometric formula (align with BMP58X): h = 44307.7 * (1 - (P/P0)^0.190284)
   const float seaLevelPressure = 101325.0f;    // Standard sea level pressure (Pa)
-  return 44330.0f * (1.0f - pow(pressure / seaLevelPressure, 0.1903f));
+  return 44307.7f * (1.0f - pow(pressure / seaLevelPressure, 0.190284f));
 }
 
 bool DFRobot_Multi_DOF_IMU::get10dofData(sSensorData_t *accel, sSensorData_t *gyro, sSensorData_t *mag, float *pressure, bool calcAltitude)
@@ -325,20 +325,23 @@ bool DFRobot_Multi_DOF_IMU::get10dofData(sSensorData_t *accel, sSensorData_t *gy
     return false;
   }
 
-  // Parse little-endian int32 data (unit: 0.01Pa)
+  // Parse little-endian int32 data
   // Note: Must cast to uint32_t before shifting to avoid overflow on AVR (16-bit int)
   int32_t pressRaw      = (int32_t)((uint32_t)pressRawData[0] | ((uint32_t)pressRawData[1] << 8) | ((uint32_t)pressRawData[2] << 16) | ((uint32_t)pressRawData[3] << 24));
-  float   pressureValue = (float)pressRaw * 0.01f;
+  float   pressureValue = (float)pressRaw;
 
-  // Apply calibration if enabled
-  if (_calibrated) {
-    // Calculate sea level pressure: P0 = P / (1 - h/44307.7)^5.255302
-    const float STANDARD_SEA_LEVEL_PRESSURE_PA = 101325.0f;
-    float       seaLevelPressPa                = pressureValue / pow(1.0f - (_sealevelAltitude / 44307.7f), 5.255302f);
-    pressureValue                              = pressureValue - seaLevelPressPa + STANDARD_SEA_LEVEL_PRESSURE_PA;
+  // Pressure: always return raw. Altitude: when calibrated, use sea-level adjusted pressure for formula (same as BMP58X).
+  if (calcAltitude) {
+    float pressureForAlt = pressureValue;
+    if (_calibrated) {
+      const float STANDARD_SEA_LEVEL_PRESSURE_PA = 101325.0f;
+      float       seaLevelPressPa                = pressureValue / pow(1.0f - (_sealevelAltitude / 44307.7f), 5.255302f);
+      pressureForAlt                             = pressureValue - seaLevelPressPa + STANDARD_SEA_LEVEL_PRESSURE_PA;
+    }
+    *pressure = calculateAltitude(pressureForAlt);
+  } else {
+    *pressure = pressureValue;
   }
-
-  *pressure = calcAltitude ? calculateAltitude(pressureValue) : pressureValue;
   return true;
 }
 
@@ -509,7 +512,7 @@ uint32_t DFRobot_Multi_DOF_IMU::getStepCount(void)
   return stepCount;
 }
 
-bool DFRobot_Multi_DOF_IMU::calibratePress(float altitude)
+bool DFRobot_Multi_DOF_IMU::calibrateAltitude(float altitude)
 {
   bool ret = false;
   if (altitude > 0) {
@@ -618,8 +621,10 @@ uint8_t DFRobot_Multi_DOF_IMU_I2C::writeReg(uint16_t reg, void *data, uint8_t le
   return RET_CODE_OK;
 }
 
-uint8_t DFRobot_Multi_DOF_IMU_I2C::readReg(uint16_t reg, void *data, uint8_t len)
+uint8_t DFRobot_Multi_DOF_IMU_I2C::readReg(uint16_t reg, void *data, uint8_t len, eRegType_t regType)
 {
+  (void)regType;    // Unused in I2C mode, all registers share the same address space
+
   uint8_t *pData = (uint8_t *)data;
 
   // Phase 1: Write register address
@@ -746,7 +751,7 @@ uint8_t DFRobot_Multi_DOF_IMU_UART::writeReg(uint16_t reg, void *data, uint8_t l
   }
 }
 
-uint8_t DFRobot_Multi_DOF_IMU_UART::readReg(uint16_t reg, void *data, uint8_t len)
+uint8_t DFRobot_Multi_DOF_IMU_UART::readReg(uint16_t reg, void *data, uint8_t len, eRegType_t regType)
 {
   if (data == nullptr) {
     DBG("UART readReg: invalid parameters");
@@ -755,8 +760,10 @@ uint8_t DFRobot_Multi_DOF_IMU_UART::readReg(uint16_t reg, void *data, uint8_t le
 
   uint8_t *pData = (uint8_t *)data;
 
-  // Determine register type: input registers (0x0000-0x001B) or holding registers (0x0000-0x0011)
-  bool isInputRegister = (reg <= 0x001B);
+  // Use regType parameter to determine which Modbus function code to use
+  // eInputReg: Modbus function code 0x04 (read input registers)
+  // eHoldingReg: Modbus function code 0x03 (read holding registers)
+  bool isInputRegister = (regType == eInputReg);
 
   if (len == 2) {
     uint16_t value = 0;

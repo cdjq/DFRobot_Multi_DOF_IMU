@@ -157,14 +157,14 @@ This Python library provides a comprehensive interface for multi-DOF IMU sensors
   def get_10dof_data(self, as_altitude=False):
 
   '''!
-    @fn calibrate_press
-    @brief Calibrate barometric pressure data based on local altitude
+    @fn calibrate_altitude
+    @brief Calibrate altitude data based on local altitude
     @param altitude Local altitude (unit: m)
     @n For example: 540.0 means altitude of 540 meters
-    @n After calling this function, pressure data in get_10dof_data will be calibrated
+    @n After calling this function, altitude in get_10dof_data (when calc_altitude is True) will be calibrated
     @return True if calibration successful (altitude > 0), False otherwise
   '''
-  def calibrate_press(self, altitude):
+  def calibrate_altitude(self, altitude):
 
   '''!
     @fn set_press_oor

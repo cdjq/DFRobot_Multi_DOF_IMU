@@ -141,7 +141,7 @@ def setup():
   '''
   if CALIBRATE_ABSOLUTE_DIFFERENCE:
     print("[5] Calibrating pressure sensor (altitude 540m)... ", end="")
-    imu.calibrate_press(540.0)
+    imu.calibrate_altitude(540.0)
     print("Done")
 
   print("\nConfiguration complete, starting monitoring")

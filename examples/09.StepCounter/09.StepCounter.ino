@@ -112,8 +112,8 @@ void setup()
 #endif
   attachInterrupt(digitalPinToInterrupt(interruptPin), int1ISR, RISING);
 #elif defined(ARDUINO_SAM_ZERO)
-  // Pin 6 is used as interrupt pin by default, other non-conflicting pins can also be selected as external interrupt pins
-  attachInterrupt(digitalPinToInterrupt(6) /* Query the interrupt number of the 6 pin */, int1ISR, RISING);
+  // Pin 5 is used as interrupt pin by default, other non-conflicting pins can also be selected as external interrupt pins
+  attachInterrupt(digitalPinToInterrupt(5) /* Query the interrupt number of the 5 pin */, int1ISR, RISING);
 #else
   /* The Correspondence Table of AVR Series Arduino Interrupt Pins And Terminal Numbers
      * ---------------------------------------------------------------------------------------

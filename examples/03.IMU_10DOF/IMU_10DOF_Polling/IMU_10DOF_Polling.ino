@@ -3,7 +3,7 @@
  * @brief Read 10DOF IMU data example (accelerometer + gyroscope + magnetometer + barometer)
  * @details This example demonstrates how to read 10DOF IMU sensor data using I2C/UART interface.
  * @n The example initializes the sensor, configures the accelerometer and gyroscope ranges,
- * @n optionally calibrates the pressure sensor based on local altitude,
+ * @n optionally calibrates altitude data based on local altitude,
  * @n then continuously reads and prints the 10DOF data (acceleration, angular velocity, magnetic field, and pressure) in the loop function.
  * @copyright Copyright (c) 2026 DFRobot Co.Ltd (http://www.dfrobot.com)
  * @license The MIT License (MIT)
@@ -21,6 +21,11 @@
 
 /* Pressure calibration (optional): */
 #define CALIBRATE_ABSOLUTE_DIFFERENCE
+#ifdef CALIBRATE_ABSOLUTE_DIFFERENCE
+const bool CALCULATE_ALTITUDE = true;
+#else
+const bool CALCULATE_ALTITUDE = false;
+#endif
 
 const uint8_t ADDR = 0x4A;
 
@@ -89,9 +94,9 @@ void setup()
   delay(1000);
 
 #if defined(CALIBRATE_ABSOLUTE_DIFFERENCE)
-  // Calibrate pressure sensor based on local altitude (540m in this example)
-  Serial.print("[5] Calibrating pressure sensor (altitude 540m)... ");
-  imu.calibratePress(540.0);
+  // Calibrate altitude data based on local altitude (540m in this example)
+  Serial.print("[5] Calibrating altitude (reference 540m)... ");
+  imu.calibrateAltitude(540.0);
 #endif
 
   delay(100);
@@ -101,9 +106,9 @@ void setup()
 void loop()
 {
   DFRobot_Multi_DOF_IMU::sSensorData_t accel, gyro, mag;
-  float                                pressureValue;    // Pressure data (unit: Pa)
+  float                                pressureValue;    // Pressure (Pa) or altitude (m), depends on CALCULATE_ALTITUDE
 
-  if (imu.get10dofData(&accel, &gyro, &mag, &pressureValue)) {
+  if (imu.get10dofData(&accel, &gyro, &mag, &pressureValue, CALCULATE_ALTITUDE)) {
     Serial.println("10DOF IMU Data");
     Serial.print("Acc: X=");
     Serial.print(accel.x, 3);
@@ -126,11 +131,17 @@ void loop()
     Serial.print("uT Z=");
     Serial.print(mag.z, 2);
     Serial.println("uT");
-    Serial.print("Pressure: ");
-    Serial.print(pressureValue, 2);
-    Serial.print("Pa (");
-    Serial.print(pressureValue / 100.0, 2);
-    Serial.println("hPa)\n");
+    if (CALCULATE_ALTITUDE) {
+      Serial.print("Altitude: ");
+      Serial.print(pressureValue, 2);
+      Serial.println(" m\n");
+    } else {
+      Serial.print("Pressure: ");
+      Serial.print(pressureValue, 2);
+      Serial.print(" Pa (");
+      Serial.print(pressureValue / 100.0, 2);
+      Serial.println(" hPa)\n");
+    }
   } else {
     Serial.println("Error: Failed to read sensor data!");
     Serial.println();

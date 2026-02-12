@@ -32,6 +32,13 @@ class DFRobot_Multi_DOF_IMU(object):
   COMM_MODE_UART = 0  # UART communication mode (Modbus RTU)
   COMM_MODE_I2C = 1  # I2C communication mode
 
+  # Register type enumeration (for UART Modbus mode)
+  # In UART mode, input registers (function code 0x04) and holding registers (function code 0x03)
+  # have overlapping address ranges, so this enum is needed to distinguish them.
+  # In I2C mode, this parameter is ignored as there's only one register space.
+  REG_TYPE_INPUT = 0  # Input register (read-only, Modbus function code 0x04)
+  REG_TYPE_HOLDING = 1  # Holding register (read-write, Modbus function code 0x03/0x06)
+
   # Return codes
   RET_CODE_OK = 0  # Return code: success
   RET_CODE_ERROR = 1  # Return code: failure
@@ -393,28 +400,29 @@ class DFRobot_Multi_DOF_IMU(object):
       return None
 
     press_raw = self._to_signed_32(press_raw_data[0], press_raw_data[1], press_raw_data[2], press_raw_data[3])
-    pressure_value = press_raw * 0.01
+    pressure_value = press_raw
 
-    if self._calibrated:
-      STANDARD_SEA_LEVEL_PRESSURE_PA = 101325.0
-      sea_level_press_pa = pressure_value / math.pow(1.0 - (self._sealevel_altitude / 44307.7), 5.255302)
-      pressure_value = pressure_value - sea_level_press_pa + STANDARD_SEA_LEVEL_PRESSURE_PA
-
+    # Pressure: always return raw. Altitude: when calibrated, use sea-level adjusted pressure for formula (same as BMP58X).
     if calc_altitude:
-      data_9dof['pressure'] = self._calculate_altitude(pressure_value)
+      pressure_for_alt = pressure_value
+      if self._calibrated:
+        STANDARD_SEA_LEVEL_PRESSURE_PA = 101325.0
+        sea_level_press_pa = pressure_value / math.pow(1.0 - (self._sealevel_altitude / 44307.7), 5.255302)
+        pressure_for_alt = pressure_value - sea_level_press_pa + STANDARD_SEA_LEVEL_PRESSURE_PA
+      data_9dof['pressure'] = self._calculate_altitude(pressure_for_alt)
     else:
       data_9dof['pressure'] = pressure_value
 
     return data_9dof
 
-  def calibrate_press(self, altitude):
+  def calibrate_altitude(self, altitude):
     '''!
-    @fn calibrate_press
-    @brief Calibrate barometric pressure data based on local altitude
+    @fn calibrate_altitude
+    @brief Calibrate altitude data based on local altitude
     @param altitude Local altitude (unit: m)
     @n For example: 540.0 means altitude of 540 meters
-    @n After calling this function, the pressure data in get_10dof_data will be calibrated to eliminate absolute errors
-    @n If this function is not called, the measurement data will not eliminate absolute errors
+    @n After calling this function, the altitude in get_10dof_data (when calc_altitude is True) will be calibrated to eliminate absolute errors
+    @n If this function is not called, the altitude measurement will not eliminate absolute errors
     @return True if calibration successful (altitude > 0), False otherwise
     '''
     if altitude > 0:
@@ -652,12 +660,15 @@ class DFRobot_Multi_DOF_IMU(object):
     '''
     raise NotImplementedError("Subclass must implement _write_reg")
 
-  def _read_reg(self, reg, length):
+  def _read_reg(self, reg, length, reg_type=None):
     '''!
     @fn _read_reg
     @brief Read register (pure virtual function, implemented by subclasses)
     @param reg Register address
     @param length Data length to read
+    @param reg_type Register type (see REG_TYPE_*), default is REG_TYPE_INPUT
+    @n In UART mode: REG_TYPE_INPUT uses Modbus function code 0x04, REG_TYPE_HOLDING uses function code 0x03
+    @n In I2C mode: this parameter is ignored
     @return Data read (list of bytes) or None if failed
     '''
     raise NotImplementedError("Subclass must implement _read_reg")
@@ -778,8 +789,9 @@ class DFRobot_Multi_DOF_IMU(object):
     @param pressure Pressure value, unit: Pa
     @return Altitude, unit: m
     '''
+    # Barometric formula (align with BMP58X): h = 44307.7 * (1 - (P/P0)^0.190284)
     sea_level_pressure = 101325.0
-    return 44330.0 * (1.0 - math.pow(pressure / sea_level_pressure, 0.1903))
+    return 44307.7 * (1.0 - math.pow(pressure / sea_level_pressure, 0.190284))
 
   def _int_type_to_macro_value(self, pin, int_type):
     '''!
@@ -877,7 +889,7 @@ class DFRobot_Multi_DOF_IMU_I2C(DFRobot_Multi_DOF_IMU):
       print("I2C write error: {}".format(e))
       return self.RET_CODE_ERROR
 
-  def _read_reg(self, reg, length):
+  def _read_reg(self, reg, length, reg_type=None):
     '''!
     @fn _read_reg
     @brief Read register via I2C
@@ -887,8 +899,10 @@ class DFRobot_Multi_DOF_IMU_I2C(DFRobot_Multi_DOF_IMU):
     @n       Phase 3: Read data (length bytes)
     @param reg Register address (16-bit)
     @param length Data length to read
+    @param reg_type Register type (ignored in I2C mode, kept for API compatibility)
     @return Data read (list of bytes) or None if failed
     '''
+    # reg_type is ignored in I2C mode, all registers share the same address space
     if self._i2c is None:
       return None
 
@@ -915,9 +929,6 @@ class DFRobot_Multi_DOF_IMU_UART(DFRobot_Multi_DOF_IMU, DFRobot_RTU):
   @details Communicate with IMU sensor through UART interface using Modbus RTU protocol
   @note Uses DFRobot_RTU library for Modbus RTU communication
   '''
-
-  # Maximum address for input registers (0x0000-0x001B)
-  _REG_INPUT_MAX = 0x001B
 
   def __init__(self, sensor_model=DFRobot_Multi_DOF_IMU.SENSOR_MODEL_10DOF, baud=9600, addr=0x4A):
     '''!
@@ -987,19 +998,24 @@ class DFRobot_Multi_DOF_IMU_UART(DFRobot_Multi_DOF_IMU, DFRobot_RTU):
       print("UART write error: {}".format(e))
       return self.RET_CODE_ERROR
 
-  def _read_reg(self, reg, length):
+  def _read_reg(self, reg, length, reg_type=None):
     '''!
     @fn _read_reg
     @brief Read register via UART (using Modbus RTU protocol)
-    @details Reads from input registers (reg <= 0x001B, function code 0x04)
-    @n       or holding registers (reg > 0x001B, function code 0x03)
+    @details Uses reg_type parameter to determine which Modbus function code to use
+    @n       REG_TYPE_INPUT: Read from input registers (Modbus function code 0x04)
+    @n       REG_TYPE_HOLDING: Read from holding registers (Modbus function code 0x03)
     @param reg Register address
     @param length Data length to read (in bytes)
+    @param reg_type Register type (see REG_TYPE_*), default is REG_TYPE_INPUT
     @return Data read (list of bytes) or None if failed
     '''
     try:
-      # Determine register type: input registers (0x0000-0x001B) or holding registers
-      is_input_register = reg <= self._REG_INPUT_MAX
+      # Use reg_type parameter to determine which Modbus function code to use
+      # Default to input register if not specified
+      if reg_type is None:
+        reg_type = self.REG_TYPE_INPUT
+      is_input_register = reg_type == self.REG_TYPE_INPUT
 
       # Calculate number of registers to read (each register is 2 bytes)
       num_regs = (length + 1) // 2

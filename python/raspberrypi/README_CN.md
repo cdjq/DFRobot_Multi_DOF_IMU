@@ -157,14 +157,14 @@ SKU: SEN0692/SEN0694/SEN0696
   def get_10dof_data(self, as_altitude=False):
 
   '''!
-    @fn calibrate_press
-    @brief 根据当地海拔高度校准气压数据
+    @fn calibrate_altitude
+    @brief 根据当地海拔高度校准海拔数据
     @param altitude 当地海拔高度（单位：m）
     @n 例如：540.0 表示海拔540米
-    @n 调用此函数后，get_10dof_data中的气压数据将被校准，消除绝对误差
+    @n 调用此函数后，get_10dof_data 中请求海拔时（calc_altitude 为 True）将使用该校准消除绝对误差
     @return True 校准成功（海拔高度 > 0）, False 校准失败
   '''
-  def calibrate_press(self, altitude):
+  def calibrate_altitude(self, altitude):
 
   '''!
     @fn set_press_oor
