@@ -196,8 +196,6 @@ def loop():
       if int3_data_ready and not int3_is_drdy:
         int3_data_ready = False
 
-  time.sleep(0.01)
-
 
 if __name__ == "__main__":
   try:

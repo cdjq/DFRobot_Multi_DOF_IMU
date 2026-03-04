@@ -184,8 +184,6 @@ def loop():
       else:
         print("Failed to read data!")
 
-  time.sleep(0.01)
-
 
 if __name__ == "__main__":
   try:

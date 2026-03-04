@@ -233,8 +233,6 @@ def loop():
       if int4_data_ready and not int4_is_drdy:
         int4_data_ready = False
 
-  time.sleep(0.01)
-
 
 if __name__ == "__main__":
   try:

@@ -218,6 +218,4 @@ void loop()
   if (deviceState == STATE_AWAKE) {
     // Can perform other tasks here, e.g., read sensor data, update display, etc.
   }
-
-  delay(200);
 }

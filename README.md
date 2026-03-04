@@ -30,8 +30,9 @@ This sensor is very suitable for wearable devices, smart watches, fitness tracke
 
 <p align="center">
   <img src="./resources/images/SEN0694(1).png" width="45%">
-  <img src="./resources/images/SEN0694(2).png" width="48%">
+  <img src="./resources/images/SEN0694(2).png" width="45%">
 </p>
+
 
 
 ### SEN0696
@@ -229,7 +230,7 @@ To use this library, first download the library files, paste them into the \Ardu
 
   /**
    * @fn setInt
-   * @brief Configure interrupt (unified API)
+   * @brief Configure interrupt
    * @param pin Interrupt pin (see eImuIntPin_t)
    * @n Available pins:
    * @n - eImuIntPin1: INT1 pin (6DOF sensor, supports multiple interrupt types)
@@ -263,7 +264,7 @@ To use this library, first download the library files, paste them into the \Ardu
 
   /**
    * @fn getIntStatus
-   * @brief Read interrupt status (unified API)
+   * @brief Read interrupt status
    * @param pin Interrupt pin (see eImuIntPin_t)
    * @return uint16_t Interrupt status
    * @n Can be bitwise ANDed with corresponding interrupt status macros to determine interrupt type
@@ -275,7 +276,8 @@ To use this library, first download the library files, paste them into the \Ardu
    * @fn getStepCount
    * @brief Read step counter data
    * @details Read current cumulative step count
-   * @n After detecting step interrupt, call this function to read cumulative step count
+   * @n After enabling step count interrupt, you can call this function at any time to read the current real step count from the step counter;
+   * @n no need to wait for or depend on INT1_2_INT_STATUS_STEP_COUNTER interrupt trigger
    * @return uint32_t Cumulative step count (32-bit)
    * @retval 0 No step data or read failed
    */

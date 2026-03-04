@@ -137,8 +137,6 @@ def loop():
       motion_count += 1
       print("[%d] Motion detected! Interrupt status: 0x%04X" % (motion_count, int_status))
 
-  time.sleep(0.2)
-
 
 if __name__ == "__main__":
   try:

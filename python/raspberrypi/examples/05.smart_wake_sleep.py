@@ -179,8 +179,6 @@ def loop():
     # Can perform other tasks here, e.g., read sensor data, update display, etc.
     pass
 
-  time.sleep(0.2)
-
 
 if __name__ == "__main__":
   try:

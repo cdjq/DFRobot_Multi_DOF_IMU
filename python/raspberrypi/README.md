@@ -18,6 +18,34 @@ This sensor is very suitable for wearable devices, smart watches, fitness tracke
 - Configurable accelerometer and gyroscope ranges
 - Multiple interrupt pins for flexible event handling
 
+### SEN0692
+
+<p align="center">
+  <img src="../../resources/images/SEN0692(1).png" width="45%">
+  <img src="../../resources/images/SEN0692(2).png" width="45%">
+</p>
+
+
+
+### SEN0694
+
+<p align="center">
+  <img src="../../resources/images/SEN0694(1).png" width="45%">
+  <img src="../../resources/images/SEN0694(2).png" width="45%">
+</p>
+
+
+
+
+### SEN0696
+
+<p align="center">
+  <img src="../../resources/images/SEN0696(1).png" width="45%">
+  <img src="../../resources/images/SEN0696(2).png" width="45%">
+</p>
+
+
+
 ## Product Link (https://www.dfrobot.com)
 
 ```
@@ -185,7 +213,7 @@ This Python library provides a comprehensive interface for multi-DOF IMU sensors
 
   '''!
     @fn set_int
-    @brief Configure interrupt (unified API)
+    @brief Configure interrupt
     @param pin Interrupt pin
     @n Available pins:
     @n - IMU_INT_PIN_INT1: INT1 pin (6DOF sensor, supports multiple interrupt types)
@@ -217,7 +245,7 @@ This Python library provides a comprehensive interface for multi-DOF IMU sensors
 
   '''!
     @fn get_int_status
-    @brief Read interrupt status (unified API)
+    @brief Read interrupt status
     @param pin Interrupt pin
     @return int Interrupt status
     @n Can be bitwise ANDed with corresponding interrupt status constants
@@ -231,6 +259,9 @@ This Python library provides a comprehensive interface for multi-DOF IMU sensors
   '''!
     @fn get_step_count
     @brief Read step counter data
+    @details Read current cumulative step count
+    @n After enabling step count interrupt, you can call this function at any time to read the current real step count from the step counter;
+    @n no need to wait for or depend on INT1_2_INT_STATUS_STEP_COUNTER interrupt trigger
     @return int Cumulative step count (32-bit)
     @retval 0 No step data or read failed
   '''

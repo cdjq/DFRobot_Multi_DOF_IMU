@@ -171,6 +171,4 @@ void loop()
       Serial.println(intStatus, HEX);
     }
   }
-
-  delay(200);
 }

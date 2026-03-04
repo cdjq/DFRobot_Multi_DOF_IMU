@@ -176,8 +176,6 @@ def loop():
         current_state = STATE_STILL
         print("[%.3f] I've stopped" % time.time())
 
-  time.sleep(0.2)
-
 
 if __name__ == "__main__":
   try:

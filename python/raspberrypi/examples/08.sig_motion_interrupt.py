@@ -140,8 +140,6 @@ def loop():
     elif int_status != 0:
       print("Other interrupt: 0x%04X" % int_status)
 
-  time.sleep(0.2)
-
 
 if __name__ == "__main__":
   try:
