@@ -155,21 +155,14 @@ void loop()
   if (sigMotionDetected) {
     sigMotionDetected = false;
 
-    uint16_t intStatus = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin1);
+    sigMotionCount++;
 
-    if (intStatus & INT1_2_INT_STATUS_SIG_MOTION) {
-      sigMotionCount++;
-
-      Serial.print("Significant motion detection #");
-      Serial.print(sigMotionCount);
-      Serial.print(" - Interrupt status: 0x");
-      Serial.print(intStatus, HEX);
-      Serial.print(" - Time: ");
-      Serial.print(millis());
-      Serial.println("ms");
-    } else if (intStatus != 0) {
-      Serial.print("Other interrupt: 0x");
-      Serial.println(intStatus, HEX);
-    }
+    Serial.print("Significant motion detection #");
+    Serial.print(sigMotionCount);
+    Serial.print(" - Time: ");
+    Serial.print(millis());
+    Serial.println("ms");
   }
+
+  delay(200);
 }

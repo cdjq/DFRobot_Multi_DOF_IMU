@@ -88,25 +88,6 @@ public:
     eHoldingReg = 1     ///< Holding register (read-write, Modbus function code 0x03/0x06)
   } eRegType_t;
 
-/** Interrupt status return values (for getIntStatus return value checking) */
-/** INT1_2 interrupt status return values - 6/9/10DOF sensors */
-#define INT1_2_INT_STATUS_NO_MOTION    0x0001    ///< No motion detection interrupt
-#define INT1_2_INT_STATUS_ANY_MOTION   0x0002    ///< Any motion detection interrupt
-#define INT1_2_INT_STATUS_FLAT         0x0004    ///< Flat detection interrupt
-#define INT1_2_INT_STATUS_ORIENTATION  0x0008    ///< Orientation detection interrupt
-#define INT1_2_INT_STATUS_STEP_COUNTER 0x0010    ///< Step counter detection interrupt
-#define INT1_2_INT_STATUS_SIG_MOTION   0x0040    ///< Significant motion detection interrupt
-#define INT1_2_INT_STATUS_TILT         0x0080    ///< Tilt detection interrupt
-#define INT1_2_INT_STATUS_TAP          0x0100    ///< Tap detection interrupt
-#define INT1_2_INT_STATUS_DRDY         0x3000    ///< Data ready interrupt (bit mask, requires bitwise AND operation to check)
-
-/** INT3 interrupt status return values - 9/10DOF sensors (magnetometer) */
-#define INT3_INT_STATUS_DRDY 0x0001    ///< Data ready interrupt
-
-/** INT4 interrupt status return values - 10DOF sensor (barometer) */
-#define INT4_INT_STATUS_DRDY 0x0001    ///< Data ready interrupt
-#define INT4_INT_STATUS_OOR  0x0002    ///< Pressure out-of-range interrupt
-
 /** IMU tap type return values */
 #define TAP_TYPE_SINGLE 0x0001    ///< Single tap interrupt
 #define TAP_TYPE_DOUBLE 0x0002    ///< Double tap interrupt
@@ -144,14 +125,10 @@ private:
 #define REG_I_MAG_DATA_Z_HIGH_WORD    0x0011    ///< Magnetometer data Z high word
 #define REG_I_PRESS_DATA_LOW_WORD     0x0012    ///< Pressure data low word
 #define REG_I_PRESS_DATA_HIGH_WORD    0x0013    ///< Pressure data high word
-#define REG_I_INT1_STATUS             0x0014    ///< 6DOF interrupt 1 status
-#define REG_I_INT2_STATUS             0x0015    ///< 6DOF interrupt 2 status
-#define REG_I_INT3_STATUS             0x0016    ///< 9DOF interrupt status
-#define REG_I_INT4_STATUS             0x0017    ///< 10DOF interrupt status
-#define REG_I_INT_STEP_DATA_LOW_WORD  0x0018    ///< 6DOF step counter data low word
-#define REG_I_INT_STEP_DATA_HIGH_WORD 0x0019    ///< 6DOF step counter data high word
-#define REG_I_INT_TAP_DATA            0x001A    ///< 6DOF tap data
-#define REG_I_INT_ORIENTATION_DATA    0x001B    ///< 6DOF orientation data
+#define REG_I_INT_STEP_DATA_LOW_WORD  0x0014    ///< 6DOF step counter data low word
+#define REG_I_INT_STEP_DATA_HIGH_WORD 0x0015    ///< 6DOF step counter data high word
+#define REG_I_INT_TAP_DATA            0x0016    ///< 6DOF tap data
+#define REG_I_INT_ORIENTATION_DATA    0x0017    ///< 6DOF orientation data
 
 /** Holding registers (read-write) - Modbus function code 0x03/0x06 */
 #define REG_H_RESERVED                     0x0000    ///< Reserved
@@ -204,14 +181,10 @@ private:
 #define REG_I2C_MAG_DATA_Z_HIGH_WORD         0x001B    ///< Magnetometer data Z high word
 #define REG_I2C_PRESS_DATA_LOW_WORD          0x001C    ///< Pressure data low word
 #define REG_I2C_PRESS_DATA_HIGH_WORD         0x001D    ///< Pressure data high word
-#define REG_I2C_INT1_STATUS                  0x001E    ///< 6DOF interrupt 1 status
-#define REG_I2C_INT2_STATUS                  0x001F    ///< 6DOF interrupt 2 status
-#define REG_I2C_INT3_STATUS                  0x0020    ///< 9DOF interrupt status
-#define REG_I2C_INT4_STATUS                  0x0021    ///< 10DOF interrupt status
-#define REG_I2C_INT_STEP_DATA_LOW_WORD       0x0022    ///< 6DOF step counter data low word
-#define REG_I2C_INT_STEP_DATA_HIGH_WORD      0x0023    ///< 6DOF step counter data high word
-#define REG_I2C_INT_TAP_DATA                 0x0024    ///< 6DOF tap data
-#define REG_I2C_INT_ORIENTATION_DATA         0x0025    ///< 6DOF orientation data
+#define REG_I2C_INT_STEP_DATA_LOW_WORD       0x001E    ///< 6DOF step counter data low word
+#define REG_I2C_INT_STEP_DATA_HIGH_WORD      0x001F    ///< 6DOF step counter data high word
+#define REG_I2C_INT_TAP_DATA                 0x0020    ///< 6DOF tap data
+#define REG_I2C_INT_ORIENTATION_DATA         0x0021    ///< 6DOF orientation data
 
 /** IMU interrupt pin selection (high byte) */
 #define IMU_INT_PIN_NONE 0x00    ///< Not mapped to any pin
@@ -566,23 +539,6 @@ public:
    * @note Function internally validates whether the combination of pin and interrupt type is legal based on value ranges
    */
   bool setInt(eImuIntPin_t pin, eIntType_t intType);
-
-  /**
-   * @fn getIntStatus
-   * @brief Read interrupt status (unified API)
-   * @param pin Interrupt pin (see eImuIntPin_t)
-   * @n Available pins:
-   * @n - eImuIntPin1: Read interrupt status of INT1 pin
-   * @n - eImuIntPin2: Read interrupt status of INT2 pin
-   * @n - eImuIntPin3: Read interrupt status of INT3 pin
-   * @n - eImuIntPin4: Read interrupt status of INT4 pin
-   * @return uint16_t Interrupt status
-   * @n For INT1/INT2/INT3: returns 16-bit status value
-   * @n For INT4: returns 16-bit value, but only low byte is used (high byte is 0)
-   * @n Can be bitwise ANDed with corresponding interrupt status macros to determine interrupt type
-   * @retval 0 No interrupt or read failed
-   */
-  uint16_t getIntStatus(eImuIntPin_t pin);
 
   /**
    * @fn getStepCount

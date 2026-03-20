@@ -132,14 +132,9 @@ def loop():
   if flat_detected:
     flat_detected = False
 
-    int_status = imu.get_int_status(imu.IMU_INT_PIN_INT1)
-
-    if int_status & imu.INT1_2_INT_STATUS_FLAT:
-      flat_count += 1
-      print("Flat detection #%d - Interrupt status: 0x%04X - Time: %.3fs" % (flat_count, int_status, time.time()))
-      print("    Device is placed horizontally")
-    elif int_status != 0:
-      print("Other interrupt: 0x%04X" % int_status)
+    flat_count += 1
+    print("Flat detection #%d - Time: %.3fs" % (flat_count, time.time()))
+    print("    Device is placed horizontally")
 
 
 if __name__ == "__main__":
@@ -147,6 +142,7 @@ if __name__ == "__main__":
     setup()
     while True:
       loop()
+      time.sleep(0.2)
   except KeyboardInterrupt:
     print("\nExit.")
   finally:

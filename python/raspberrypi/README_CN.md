@@ -244,24 +244,11 @@ SKU: SEN0692/SEN0694/SEN0696
   def set_int(self, pin, int_type):
 
   '''!
-    @fn get_int_status
-    @brief 读取中断状态
-    @param pin 中断引脚
-    @return int 中断状态
-    @n 可与相应的中断状态常量进行按位与操作来判断中断类型
-    @n INT1/INT2状态常量：INT1_2_INT_STATUS_*
-    @n INT3状态常量：INT3_INT_STATUS_*
-    @n INT4状态常量：INT4_INT_STATUS_*
-    @retval 0 无中断或读取失败
-  '''
-  def get_int_status(self, pin):
-
-  '''!
     @fn get_step_count
     @brief 读取步数计数器数据
     @details 读取当前累计步数
-    @n 使能步进计数中断后，可随时调用此函数从计步器读取当前真实步数，
-    @n 无需等待或依赖 INT1_2_INT_STATUS_STEP_COUNTER 中断触发
+    @n 使能步进计数后，可随时调用此函数从计步器读取当前真实步数，
+    @n 无需等待或依赖Arduino中断触发
     @return int 累计步数（32位）
     @retval 0 无步数数据或读取失败
   '''

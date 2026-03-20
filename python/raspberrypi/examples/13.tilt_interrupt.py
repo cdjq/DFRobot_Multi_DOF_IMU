@@ -131,13 +131,8 @@ def loop():
   if tilt_detected:
     tilt_detected = False
 
-    int_status = imu.get_int_status(imu.IMU_INT_PIN_INT1)
-
-    if int_status & imu.INT1_2_INT_STATUS_TILT:
-      print("Tilt detected - Interrupt status: 0x%04X - Time: %.3fs" % (int_status, time.time()))
-      print("    Device is tilted")
-    elif int_status != 0:
-      print("Other interrupt: 0x%04X" % int_status)
+    print("Tilt detected - Time: %.3fs" % time.time())
+    print("    Device is tilted")
 
 
 if __name__ == "__main__":
@@ -145,6 +140,7 @@ if __name__ == "__main__":
     setup()
     while True:
       loop()
+      time.sleep(0.2)
   except KeyboardInterrupt:
     print("\nExit.")
   finally:

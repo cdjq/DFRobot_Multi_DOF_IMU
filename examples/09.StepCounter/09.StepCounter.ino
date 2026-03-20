@@ -155,19 +155,14 @@ void loop()
   if (stepDetected) {
     stepDetected = false;
 
-    uint16_t intStatus = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin1);
+    uint32_t currentStepCount = imu.getStepCount();
 
-    if (intStatus & INT1_2_INT_STATUS_STEP_COUNTER) {
-      uint32_t currentStepCount = imu.getStepCount();
-
-      if (currentStepCount != lastStepCount) {
-        Serial.print("Steps: ");
-        Serial.println(currentStepCount);
-        lastStepCount = currentStepCount;
-      }
-    } else if (intStatus != 0) {
-      Serial.print("Other interrupt: 0x");
-      Serial.println(intStatus, HEX);
+    if (currentStepCount != lastStepCount) {
+      Serial.print("Steps: ");
+      Serial.println(currentStepCount);
+      lastStepCount = currentStepCount;
     }
   }
+
+  delay(200);
 }

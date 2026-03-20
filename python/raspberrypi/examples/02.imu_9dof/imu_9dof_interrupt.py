@@ -165,21 +165,12 @@ def loop():
   global int1_data_ready, int3_data_ready
 
   if int1_data_ready or int3_data_ready:
-    '''!
-          @brief Check interrupt status for both INT1 and INT3
-    '''
-    int1_status = imu.get_int_status(imu.IMU_INT_PIN_INT1)
-    int3_status = imu.get_int_status(imu.IMU_INT_PIN_INT3)
-
-    int1_is_drdy = (int1_status & imu.INT1_2_INT_STATUS_DRDY) != 0
-    int3_is_drdy = (int3_status & imu.INT3_INT_STATUS_DRDY) != 0
-
-    if int1_is_drdy and int3_is_drdy:
+    if int1_data_ready and int3_data_ready:
       int1_data_ready = False
       int3_data_ready = False
 
       '''!
-              @brief Read 9DOF IMU data
+              @brief Read 9DOF IMU data when both INT1 and INT3 interrupts are triggered
       '''
       data = imu.get_9dof_data()
 
@@ -191,9 +182,10 @@ def loop():
       else:
         print("Failed to read 9DOF data!")
     else:
-      if int1_data_ready and not int1_is_drdy:
+      # Clear flags if only one interrupt arrived to avoid being stuck
+      if int1_data_ready and not int3_data_ready:
         int1_data_ready = False
-      if int3_data_ready and not int3_is_drdy:
+      if int3_data_ready and not int1_data_ready:
         int3_data_ready = False
 
 
@@ -202,6 +194,7 @@ if __name__ == "__main__":
     setup()
     while True:
       loop()
+      time.sleep(0.2)
   except KeyboardInterrupt:
     print("\nExit.")
   finally:

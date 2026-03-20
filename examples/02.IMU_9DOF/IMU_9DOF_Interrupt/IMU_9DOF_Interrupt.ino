@@ -187,13 +187,7 @@ void setup()
 void loop()
 {
   if (int1DataReady || int3DataReady) {
-    uint16_t int1Status = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin1);
-    uint16_t int3Status = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin3);
-
-    bool int1IsDRDY = (int1Status & INT1_2_INT_STATUS_DRDY) != 0;
-    bool int3IsDRDY = (int3Status & INT3_INT_STATUS_DRDY) != 0;
-
-    if (int1IsDRDY && int3IsDRDY) {
+    if (int1DataReady && int3DataReady) {
       int1DataReady = false;
       int3DataReady = false;
 
@@ -220,12 +214,15 @@ void loop()
         Serial.println("Failed to read 9DOF data!");
       }
     } else {
-      if (int1DataReady && !int1IsDRDY) {
+      // Clear flags if only one interrupt arrived to avoid being stuck
+      if (int1DataReady && !int3DataReady) {
         int1DataReady = false;
       }
-      if (int3DataReady && !int3IsDRDY) {
+      if (int3DataReady && !int1DataReady) {
         int3DataReady = false;
       }
     }
   }
+
+  delay(200);
 }

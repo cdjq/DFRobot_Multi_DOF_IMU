@@ -165,24 +165,16 @@ def loop():
     data_ready = False
 
     '''!
-        @brief Check interrupt status
-        @n     INT1_2_INT_STATUS_DRDY indicates data ready interrupt occurred
+        @brief Read 6DOF IMU data when interrupt is triggered
+        @n     accel: x, y, z in g
+        @n     gyro: x, y, z in dps
     '''
-    int_status = imu.get_int_status(imu.IMU_INT_PIN_INT1)
+    data = imu.get_6dof_data()
 
-    if int_status & imu.INT1_2_INT_STATUS_DRDY:
-      '''!
-              @brief Read 6DOF IMU data
-              @n     Returns dictionary with accel and gyro data
-              @n     accel: x, y, z in g
-              @n     gyro: x, y, z in dps
-      '''
-      data = imu.get_6dof_data()
-
-      if data is not None:
-        print("%.3f, %.3f, %.3f, %.2f, %.2f, %.2f" % (data['accel']['x'], data['accel']['y'], data['accel']['z'], data['gyro']['x'], data['gyro']['y'], data['gyro']['z']))
-      else:
-        print("Failed to read data!")
+    if data is not None:
+      print("%.3f, %.3f, %.3f, %.2f, %.2f, %.2f" % (data['accel']['x'], data['accel']['y'], data['accel']['z'], data['gyro']['x'], data['gyro']['y'], data['gyro']['z']))
+    else:
+      print("Failed to read data!")
 
 
 if __name__ == "__main__":
@@ -190,6 +182,7 @@ if __name__ == "__main__":
     setup()
     while True:
       loop()
+      time.sleep(0.2)
   except KeyboardInterrupt:
     print("\nExit.")
   finally:

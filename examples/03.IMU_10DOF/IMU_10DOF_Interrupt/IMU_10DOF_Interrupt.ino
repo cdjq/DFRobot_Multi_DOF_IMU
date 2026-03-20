@@ -231,15 +231,7 @@ void setup()
 void loop()
 {
   if (int1DataReady || int3DataReady || int4DataReady) {
-    uint16_t int1Status = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin1);
-    uint16_t int3Status = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin3);
-    uint16_t int4Status = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin4);
-
-    bool int1IsDRDY = (int1Status & INT1_2_INT_STATUS_DRDY) != 0;
-    bool int3IsDRDY = (int3Status & INT3_INT_STATUS_DRDY) != 0;
-    bool int4IsDRDY = (int4Status & INT4_INT_STATUS_DRDY) != 0;
-
-    if (int1IsDRDY && int3IsDRDY && int4IsDRDY) {
+    if (int1DataReady && int3DataReady && int4DataReady) {
       int1DataReady = false;
       int3DataReady = false;
       int4DataReady = false;
@@ -270,16 +262,8 @@ void loop()
       } else {
         Serial.println("Failed to read 10DOF data!");
       }
-    } else {
-      if (int1DataReady && !int1IsDRDY) {
-        int1DataReady = false;
-      }
-      if (int3DataReady && !int3IsDRDY) {
-        int3DataReady = false;
-      }
-      if (int4DataReady && !int4IsDRDY) {
-        int4DataReady = false;
-      }
     }
   }
+
+  delay(200);
 }

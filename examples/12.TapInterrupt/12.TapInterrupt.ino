@@ -155,31 +155,25 @@ void loop()
   if (tapDetected) {
     tapDetected = false;
 
-    uint16_t intStatus = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin1);
+    uint16_t tapData = imu.getTap();
 
-    if (intStatus & INT1_2_INT_STATUS_TAP) {
-      uint16_t tapData = imu.getTap();
-
-      if (tapData == TAP_TYPE_SINGLE) {
-        Serial.print("Single tap (Data: 0x");
-        Serial.print(tapData, HEX);
-        Serial.println(")");
-      } else if (tapData == TAP_TYPE_DOUBLE) {
-        Serial.print("Double tap (Data: 0x");
-        Serial.print(tapData, HEX);
-        Serial.println(")");
-      } else if (tapData == TAP_TYPE_TRIPLE) {
-        Serial.print("Triple tap (Data: 0x");
-        Serial.print(tapData, HEX);
-        Serial.println(")");
-      } else {
-        Serial.print("Unknown tap (Data: 0x");
-        Serial.println(tapData, HEX);
-      }
-
-    } else if (intStatus != 0) {
-      Serial.print("Other interrupt: 0x");
-      Serial.println(intStatus, HEX);
+    if (tapData == TAP_TYPE_SINGLE) {
+      Serial.print("Single tap (Data: 0x");
+      Serial.print(tapData, HEX);
+      Serial.println(")");
+    } else if (tapData == TAP_TYPE_DOUBLE) {
+      Serial.print("Double tap (Data: 0x");
+      Serial.print(tapData, HEX);
+      Serial.println(")");
+    } else if (tapData == TAP_TYPE_TRIPLE) {
+      Serial.print("Triple tap (Data: 0x");
+      Serial.print(tapData, HEX);
+      Serial.println(")");
+    } else {
+      Serial.print("Unknown tap (Data: 0x");
+      Serial.println(tapData, HEX);
     }
   }
+
+  delay(200);
 }

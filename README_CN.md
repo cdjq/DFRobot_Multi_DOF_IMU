@@ -264,21 +264,11 @@ SKU: SEN0692/SEN0694/SEN0696
   bool setInt(eImuIntPin_t pin, uint8_t intType);
 
   /**
-   * @fn getIntStatus
-   * @brief 读取中断状态
-   * @param pin 中断引脚（参见 eImuIntPin_t）
-   * @return uint16_t 中断状态
-   * @n 可与相应的中断状态宏进行按位与操作来判断中断类型
-   * @retval 0 无中断或读取失败
-   */
-  uint16_t getIntStatus(eImuIntPin_t pin);
-
-  /**
    * @fn getStepCount
    * @brief 读取步数计数器数据
    * @details 读取当前累计步数
-   * @n 使能步进计数中断后，可随时调用此函数从计步器读取当前真实步数，
-   * @n 无需等待或依赖 INT1_2_INT_STATUS_STEP_COUNTER 中断触发
+   * @n 使能步进计数后，可随时调用此函数从计步器读取当前真实步数，
+   * @n 无需等待或依赖Arduino中断触发
    * @return uint32_t 累计步数（32位）
    * @retval 0 无步数数据或读取失败
    */

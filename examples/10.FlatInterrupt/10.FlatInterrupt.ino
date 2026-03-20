@@ -155,22 +155,15 @@ void loop()
   if (flatDetected) {
     flatDetected = false;
 
-    uint16_t intStatus = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin1);
+    flatCount++;
 
-    if (intStatus & INT1_2_INT_STATUS_FLAT) {
-      flatCount++;
-
-      Serial.print("Flat detection #");
-      Serial.print(flatCount);
-      Serial.print(" - Interrupt status: 0x");
-      Serial.print(intStatus, HEX);
-      Serial.print(" - Time: ");
-      Serial.print(millis());
-      Serial.println("ms");
-      Serial.println("    Device is placed horizontally");
-    } else if (intStatus != 0) {
-      Serial.print("Other interrupt: 0x");
-      Serial.println(intStatus, HEX);
-    }
+    Serial.print("Flat detection #");
+    Serial.print(flatCount);
+    Serial.print(" - Time: ");
+    Serial.print(millis());
+    Serial.println("ms");
+    Serial.println("    Device is placed horizontally");
   }
+
+  delay(200);
 }

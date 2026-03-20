@@ -192,15 +192,7 @@ def loop():
   global int1_data_ready, int3_data_ready, int4_data_ready
 
   if int1_data_ready or int3_data_ready or int4_data_ready:
-    int1_status = imu.get_int_status(imu.IMU_INT_PIN_INT1)
-    int3_status = imu.get_int_status(imu.IMU_INT_PIN_INT3)
-    int4_status = imu.get_int_status(imu.IMU_INT_PIN_INT4)
-
-    int1_is_drdy = (int1_status & imu.INT1_2_INT_STATUS_DRDY) != 0
-    int3_is_drdy = (int3_status & imu.INT3_INT_STATUS_DRDY) != 0
-    int4_is_drdy = (int4_status & imu.INT4_INT_STATUS_DRDY) != 0
-
-    if int1_is_drdy and int3_is_drdy and int4_is_drdy:
+    if int1_data_ready and int3_data_ready and int4_data_ready:
       int1_data_ready = False
       int3_data_ready = False
       int4_data_ready = False
@@ -226,11 +218,12 @@ def loop():
       else:
         print("Failed to read 10DOF data!")
     else:
-      if int1_data_ready and not int1_is_drdy:
+      # Clear flags if not all interrupts have arrived to avoid being stuck
+      if int1_data_ready and not (int3_data_ready and int4_data_ready):
         int1_data_ready = False
-      if int3_data_ready and not int3_is_drdy:
+      if int3_data_ready and not (int1_data_ready and int4_data_ready):
         int3_data_ready = False
-      if int4_data_ready and not int4_is_drdy:
+      if int4_data_ready and not (int1_data_ready and int3_data_ready):
         int4_data_ready = False
 
 
@@ -239,6 +232,7 @@ if __name__ == "__main__":
     setup()
     while True:
       loop()
+      time.sleep(0.2)
   except KeyboardInterrupt:
     print("\nExit.")
   finally:

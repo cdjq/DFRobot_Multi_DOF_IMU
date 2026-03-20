@@ -428,48 +428,6 @@ bool DFRobot_Multi_DOF_IMU::setInt(eImuIntPin_t pin, eIntType_t intType)
   return true;
 }
 
-uint16_t DFRobot_Multi_DOF_IMU::getIntStatus(eImuIntPin_t pin)
-{
-  if (pin == eImuIntPinNone || pin > eImuIntPin4) {
-    DBG("Invalid interrupt pin");
-    return 0;
-  }
-
-  uint16_t statusReg;
-  switch (pin) {
-    case eImuIntPin1:
-      statusReg = getRegAddr(REG_I_INT1_STATUS, REG_I2C_INT1_STATUS);
-      break;
-    case eImuIntPin2:
-      statusReg = getRegAddr(REG_I_INT2_STATUS, REG_I2C_INT2_STATUS);
-      break;
-    case eImuIntPin3:
-      statusReg = getRegAddr(REG_I_INT3_STATUS, REG_I2C_INT3_STATUS);
-      break;
-    case eImuIntPin4:
-      statusReg = getRegAddr(REG_I_INT4_STATUS, REG_I2C_INT4_STATUS);
-      break;
-    default:
-      DBG("Invalid interrupt pin");
-      return 0;
-  }
-
-  uint16_t intStatus = 0;
-  uint8_t  ret       = readReg(statusReg, &intStatus, 2);
-
-  if (ret != RET_CODE_OK) {
-    DBG("Failed to read interrupt status");
-    return 0;
-  }
-
-  // INT4 only uses low byte
-  if (pin == eImuIntPin4) {
-    return (uint16_t)(intStatus & 0xFF);
-  }
-
-  return intStatus;
-}
-
 uint16_t DFRobot_Multi_DOF_IMU::getTap(void)
 {
   uint16_t tapData    = 0;

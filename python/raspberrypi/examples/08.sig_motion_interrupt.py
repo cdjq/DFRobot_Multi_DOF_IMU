@@ -132,13 +132,8 @@ def loop():
   if sig_motion_detected:
     sig_motion_detected = False
 
-    int_status = imu.get_int_status(imu.IMU_INT_PIN_INT1)
-
-    if int_status & imu.INT1_2_INT_STATUS_SIG_MOTION:
-      sig_motion_count += 1
-      print("Significant motion detection #%d - Interrupt status: 0x%04X - Time: %.3fs" % (sig_motion_count, int_status, time.time()))
-    elif int_status != 0:
-      print("Other interrupt: 0x%04X" % int_status)
+    sig_motion_count += 1
+    print("Significant motion detection #%d - Time: %.3fs" % (sig_motion_count, time.time()))
 
 
 if __name__ == "__main__":
@@ -146,6 +141,7 @@ if __name__ == "__main__":
     setup()
     while True:
       loop()
+      time.sleep(0.2)
   except KeyboardInterrupt:
     print("\nExit.")
   finally:

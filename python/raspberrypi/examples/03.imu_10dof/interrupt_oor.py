@@ -147,21 +147,18 @@ def loop():
   if oor_interrupt:
     oor_interrupt = False
 
-    int_status = imu.get_int_status(imu.IMU_INT_PIN_INT4)
+    data = imu.get_10dof_data()
 
-    if int_status & imu.INT4_INT_STATUS_OOR:
-      data = imu.get_10dof_data()
+    if data is not None:
+      pressure = data['pressure']
+      deviation = pressure - PRESS_THRESHOLD
+      in_range = (pressure >= PRESS_THRESHOLD - PRESS_RANGE) and (pressure <= PRESS_THRESHOLD + PRESS_RANGE)
 
-      if data is not None:
-        pressure = data['pressure']
-        deviation = pressure - PRESS_THRESHOLD
-        in_range = (pressure >= PRESS_THRESHOLD - PRESS_RANGE) and (pressure <= PRESS_THRESHOLD + PRESS_RANGE)
+      print("%.2f, %s%.2f, %s" % (pressure, "+" if deviation > 0 else "", deviation, "In Range" if in_range else "Out of Range"))
+    else:
+      print("Failed to read pressure data!")
 
-        print("%.2f, %s%.2f, %s, 0x%04X" % (pressure, "+" if deviation > 0 else "", deviation, "In Range" if in_range else "Out of Range", int_status))
-      else:
-        print("Failed to read pressure data!")
-
-  time.sleep(0.01)
+  time.sleep(0.2)
 
 
 if __name__ == "__main__":

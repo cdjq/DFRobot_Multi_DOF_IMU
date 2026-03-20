@@ -189,30 +189,26 @@ void setup()
 void loop()
 {
   if (gAnyMotionFlag) {
-    gAnyMotionFlag  = false;
-    uint16_t status = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin1);
-    if (status & INT1_2_INT_STATUS_ANY_MOTION) {
-      if (currentState != STATE_MOVING) {
-        currentState = STATE_MOVING;
-        Serial.print("[");
-        Serial.print(millis());
-        Serial.print("] ");
-        Serial.println("I'm moving");
-      }
+    gAnyMotionFlag = false;
+    if (currentState != STATE_MOVING) {
+      currentState = STATE_MOVING;
+      Serial.print("[");
+      Serial.print(millis());
+      Serial.print("] ");
+      Serial.println("I'm moving");
     }
   }
 
   if (gNoMotionFlag) {
-    gNoMotionFlag   = false;
-    uint16_t status = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin2);
-    if (status & INT1_2_INT_STATUS_NO_MOTION) {
-      if (currentState != STATE_STILL) {
-        currentState = STATE_STILL;
-        Serial.print("[");
-        Serial.print(millis());
-        Serial.print("] ");
-        Serial.println("I've stopped");
-      }
+    gNoMotionFlag = false;
+    if (currentState != STATE_STILL) {
+      currentState = STATE_STILL;
+      Serial.print("[");
+      Serial.print(millis());
+      Serial.print("] ");
+      Serial.println("I've stopped");
     }
   }
+
+  delay(200);
 }

@@ -155,18 +155,11 @@ void loop()
   if (tiltDetected) {
     tiltDetected = false;
 
-    uint16_t intStatus = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin1);
-
-    if (intStatus & INT1_2_INT_STATUS_TILT) {
-      Serial.print("Tilt detected - Interrupt status: 0x");
-      Serial.print(intStatus, HEX);
-      Serial.print(" - Time: ");
-      Serial.print(millis());
-      Serial.println("ms");
-      Serial.println("Device is tilted");
-    } else if (intStatus != 0) {
-      Serial.print("Other interrupt: 0x");
-      Serial.println(intStatus, HEX);
-    }
+    Serial.print("Tilt detected - Time: ");
+    Serial.print(millis());
+    Serial.println("ms");
+    Serial.println("Device is tilted");
   }
+
+  delay(200);
 }

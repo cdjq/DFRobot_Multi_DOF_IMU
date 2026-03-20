@@ -159,6 +159,4 @@ void loop()
       Serial.println("Failed to read sensor data!");
     }
   }
-
-  delay(500);
 }

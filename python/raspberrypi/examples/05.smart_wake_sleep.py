@@ -161,19 +161,15 @@ def loop():
 
   if sig_motion_flag:
     sig_motion_flag = False
-    status = imu.get_int_status(imu.IMU_INT_PIN_INT1)
-    if status & imu.INT1_2_INT_STATUS_SIG_MOTION:
-      if device_state == STATE_SLEEP:
-        device_state = STATE_AWAKE
-        print("[%.3f] >>> Device Woke Up <<<" % time.time())
+    if device_state == STATE_SLEEP:
+      device_state = STATE_AWAKE
+      print("[%.3f] >>> Device Woke Up <<<" % time.time())
 
   if flat_flag:
     flat_flag = False
-    status = imu.get_int_status(imu.IMU_INT_PIN_INT2)
-    if status & imu.INT1_2_INT_STATUS_FLAT:
-      if device_state == STATE_AWAKE:
-        device_state = STATE_SLEEP
-        print("[%.3f] >>> Device Entered Sleep Mode <<<" % time.time())
+    if device_state == STATE_AWAKE:
+      device_state = STATE_SLEEP
+      print("[%.3f] >>> Device Entered Sleep Mode <<<" % time.time())
 
   if device_state == STATE_AWAKE:
     # Can perform other tasks here, e.g., read sensor data, update display, etc.
@@ -185,6 +181,7 @@ if __name__ == "__main__":
     setup()
     while True:
       loop()
+      time.sleep(0.2)
   except KeyboardInterrupt:
     print("\nExit.")
   finally:

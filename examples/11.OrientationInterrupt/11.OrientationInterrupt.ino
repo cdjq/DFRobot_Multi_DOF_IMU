@@ -160,34 +160,28 @@ void loop()
   if (orientationDetected) {
     orientationDetected = false;
 
-    uint16_t intStatus = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin1);
+    uint16_t orientData = imu.getOrientation();
 
-    if (intStatus & INT1_2_INT_STATUS_ORIENTATION) {
-      uint16_t orientData = imu.getOrientation();
+    uint8_t orientation = (orientData >> 8) & 0xFF;    // High byte: orientation type
+    uint8_t faceUpDown  = orientData & 0xFF;           // Low byte: face direction
 
-      uint8_t orientation = (orientData >> 8) & 0xFF;    // High byte: orientation type
-      uint8_t faceUpDown  = orientData & 0xFF;           // Low byte: face direction
+    orientationChangeCount++;
 
-      orientationChangeCount++;
-
-      Serial.println();
-      Serial.print("Orientation change #");
-      Serial.println(orientationChangeCount);
-      Serial.print("   Screen orientation: ");
-      Serial.println(getOrientationString(orientation));
-      Serial.print("   Face direction: ");
-      Serial.println(getFaceString(faceUpDown));
-      Serial.print("   Raw data: 0x");
-      Serial.print(orientData, HEX);
-      Serial.print(" (Time: ");
-      Serial.print(millis());
-      Serial.println("ms)");
-
-    } else if (intStatus != 0) {
-      Serial.print("Other interrupt: 0x");
-      Serial.println(intStatus, HEX);
-    }
+    Serial.println();
+    Serial.print("Orientation change #");
+    Serial.println(orientationChangeCount);
+    Serial.print("   Screen orientation: ");
+    Serial.println(getOrientationString(orientation));
+    Serial.print("   Face direction: ");
+    Serial.println(getFaceString(faceUpDown));
+    Serial.print("   Raw data: 0x");
+    Serial.print(orientData, HEX);
+    Serial.print(" (Time: ");
+    Serial.print(millis());
+    Serial.println("ms)");
   }
+
+  delay(200);
 }
 
 /**

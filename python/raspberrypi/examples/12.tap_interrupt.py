@@ -131,22 +131,16 @@ def loop():
   if tap_detected:
     tap_detected = False
 
-    int_status = imu.get_int_status(imu.IMU_INT_PIN_INT1)
+    tap_data = imu.get_tap()
 
-    if int_status & imu.INT1_2_INT_STATUS_TAP:
-      tap_data = imu.get_tap()
-
-      if tap_data == imu.TAP_TYPE_SINGLE:
-        print("Single tap (Data: 0x%04X)" % tap_data)
-      elif tap_data == imu.TAP_TYPE_DOUBLE:
-        print("Double tap (Data: 0x%04X)" % tap_data)
-      elif tap_data == imu.TAP_TYPE_TRIPLE:
-        print("Triple tap (Data: 0x%04X)" % tap_data)
-      else:
-        print("Unknown tap (Data: 0x%04X)" % tap_data)
-
-    elif int_status != 0:
-      print("Other interrupt: 0x%04X" % int_status)
+    if tap_data == imu.TAP_TYPE_SINGLE:
+      print("Single tap (Data: 0x%04X)" % tap_data)
+    elif tap_data == imu.TAP_TYPE_DOUBLE:
+      print("Double tap (Data: 0x%04X)" % tap_data)
+    elif tap_data == imu.TAP_TYPE_TRIPLE:
+      print("Triple tap (Data: 0x%04X)" % tap_data)
+    else:
+      print("Unknown tap (Data: 0x%04X)" % tap_data)
 
 
 if __name__ == "__main__":
@@ -154,6 +148,7 @@ if __name__ == "__main__":
     setup()
     while True:
       loop()
+      time.sleep(0.2)
   except KeyboardInterrupt:
     print("\nExit.")
   finally:

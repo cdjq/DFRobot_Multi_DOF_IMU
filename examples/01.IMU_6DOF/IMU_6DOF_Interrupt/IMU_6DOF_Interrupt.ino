@@ -160,25 +160,23 @@ void loop()
   if (dataReady) {
     dataReady = false;
 
-    uint16_t intStatus = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin1);
-
-    if (intStatus & INT1_2_INT_STATUS_DRDY) {
-      DFRobot_Multi_DOF_IMU::sSensorData_t accel, gyro;
-      if (imu.get6dofData(&accel, &gyro)) {
-        Serial.print(accel.x, 3);
-        Serial.print(", ");
-        Serial.print(accel.y, 3);
-        Serial.print(", ");
-        Serial.print(accel.z, 3);
-        Serial.print(", ");
-        Serial.print(gyro.x, 2);
-        Serial.print(", ");
-        Serial.print(gyro.y, 2);
-        Serial.print(", ");
-        Serial.println(gyro.z, 2);
-      } else {
-        Serial.println("Failed to read data!");
-      }
+    DFRobot_Multi_DOF_IMU::sSensorData_t accel, gyro;
+    if (imu.get6dofData(&accel, &gyro)) {
+      Serial.print(accel.x, 3);
+      Serial.print(", ");
+      Serial.print(accel.y, 3);
+      Serial.print(", ");
+      Serial.print(accel.z, 3);
+      Serial.print(", ");
+      Serial.print(gyro.x, 2);
+      Serial.print(", ");
+      Serial.print(gyro.y, 2);
+      Serial.print(", ");
+      Serial.println(gyro.z, 2);
+    } else {
+      Serial.println("Failed to read data!");
     }
   }
+
+  delay(200);
 }

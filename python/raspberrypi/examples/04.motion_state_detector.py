@@ -162,19 +162,15 @@ def loop():
 
   if any_motion_flag:
     any_motion_flag = False
-    status = imu.get_int_status(imu.IMU_INT_PIN_INT1)
-    if status & imu.INT1_2_INT_STATUS_ANY_MOTION:
-      if current_state != STATE_MOVING:
-        current_state = STATE_MOVING
-        print("[%.3f] I'm moving" % time.time())
+    if current_state != STATE_MOVING:
+      current_state = STATE_MOVING
+      print("[%.3f] I'm moving" % time.time())
 
   if no_motion_flag:
     no_motion_flag = False
-    status = imu.get_int_status(imu.IMU_INT_PIN_INT2)
-    if status & imu.INT1_2_INT_STATUS_NO_MOTION:
-      if current_state != STATE_STILL:
-        current_state = STATE_STILL
-        print("[%.3f] I've stopped" % time.time())
+    if current_state != STATE_STILL:
+      current_state = STATE_STILL
+      print("[%.3f] I've stopped" % time.time())
 
 
 if __name__ == "__main__":
@@ -182,6 +178,7 @@ if __name__ == "__main__":
     setup()
     while True:
       loop()
+      time.sleep(0.2)
   except KeyboardInterrupt:
     print("\nExit.")
   finally:

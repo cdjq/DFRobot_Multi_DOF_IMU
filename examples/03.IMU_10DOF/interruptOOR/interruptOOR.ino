@@ -165,27 +165,21 @@ void loop()
   if (oorInterrupt) {
     oorInterrupt = false;
 
-    uint16_t intStatus = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin4);
+    DFRobot_Multi_DOF_IMU::sSensorData_t accel, gyro, mag;
+    float                                pressureValue;    // Pressure value (unit: Pa)
 
-    if (intStatus & INT4_INT_STATUS_OOR) {
-      DFRobot_Multi_DOF_IMU::sSensorData_t accel, gyro, mag;
-      float                                pressureValue;    // Pressure value (unit: Pa)
+    if (imu.get10dofData(&accel, &gyro, &mag, &pressureValue)) {
+      float deviation = pressureValue - 94658.0f;
+      bool  inRange   = (pressureValue >= 94608.0f) && (pressureValue <= 94708.0f);
 
-      if (imu.get10dofData(&accel, &gyro, &mag, &pressureValue)) {
-        float deviation = pressureValue - 94658.0f;
-        bool  inRange   = (pressureValue >= 94608.0f) && (pressureValue <= 94708.0f);
-
-        Serial.print(pressureValue, 2);
-        Serial.print(", ");
-        Serial.print(deviation > 0 ? "+" : "");
-        Serial.print(deviation, 2);
-        Serial.print(", ");
-        Serial.print(inRange ? "In Range" : "Out of Range");
-        Serial.print(", 0x");
-        Serial.println(intStatus, HEX);
-      } else {
-        Serial.println("Failed to read pressure data!");
-      }
+      Serial.print(pressureValue, 2);
+      Serial.print(", ");
+      Serial.print(deviation > 0 ? "+" : "");
+      Serial.print(deviation, 2);
+      Serial.print(", ");
+      Serial.println(inRange ? "In Range" : "Out of Range");
+    } else {
+      Serial.println("Failed to read pressure data!");
     }
   }
 

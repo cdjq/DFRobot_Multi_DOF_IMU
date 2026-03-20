@@ -90,24 +90,6 @@ class DFRobot_Multi_DOF_IMU(object):
   INT4_DATA_READY = 0x21  # Data ready interrupt (INT4)
   INT4_PRESSURE_OOR = 0x22  # Pressure out-of-range interrupt (INT4)
 
-  # Interrupt status return values - INT1/INT2
-  INT1_2_INT_STATUS_NO_MOTION = 0x0001  # No motion detection interrupt
-  INT1_2_INT_STATUS_ANY_MOTION = 0x0002  # Any motion detection interrupt
-  INT1_2_INT_STATUS_FLAT = 0x0004  # Flat detection interrupt
-  INT1_2_INT_STATUS_ORIENTATION = 0x0008  # Orientation detection interrupt
-  INT1_2_INT_STATUS_STEP_COUNTER = 0x0010  # Step counter detection interrupt
-  INT1_2_INT_STATUS_SIG_MOTION = 0x0040  # Significant motion detection interrupt
-  INT1_2_INT_STATUS_TILT = 0x0080  # Tilt detection interrupt
-  INT1_2_INT_STATUS_TAP = 0x0100  # Tap detection interrupt
-  INT1_2_INT_STATUS_DRDY = 0x3000  # Data ready interrupt
-
-  # Interrupt status return values - INT3 (magnetometer)
-  INT3_INT_STATUS_DRDY = 0x0001  # Data ready interrupt
-
-  # Interrupt status return values - INT4 (barometer)
-  INT4_INT_STATUS_DRDY = 0x0001  # Data ready interrupt
-  INT4_INT_STATUS_OOR = 0x0002  # Pressure out-of-range interrupt
-
   # IMU tap type return values
   TAP_TYPE_SINGLE = 0x0001  # Single tap interrupt
   TAP_TYPE_DOUBLE = 0x0002  # Double tap interrupt
@@ -160,14 +142,10 @@ class DFRobot_Multi_DOF_IMU(object):
   REG_I2C_MAG_DATA_Z_HIGH_WORD = 0x001B
   REG_I2C_PRESS_DATA_LOW_WORD = 0x001C
   REG_I2C_PRESS_DATA_HIGH_WORD = 0x001D
-  REG_I2C_INT1_STATUS = 0x001E
-  REG_I2C_INT2_STATUS = 0x001F
-  REG_I2C_INT3_STATUS = 0x0020
-  REG_I2C_INT4_STATUS = 0x0021
-  REG_I2C_INT_STEP_DATA_LOW_WORD = 0x0022
-  REG_I2C_INT_STEP_DATA_HIGH_WORD = 0x0023
-  REG_I2C_INT_TAP_DATA = 0x0024
-  REG_I2C_INT_ORIENTATION_DATA = 0x0025
+  REG_I2C_INT_STEP_DATA_LOW_WORD = 0x001E
+  REG_I2C_INT_STEP_DATA_HIGH_WORD = 0x001F
+  REG_I2C_INT_TAP_DATA = 0x0020
+  REG_I2C_INT_ORIENTATION_DATA = 0x0021
 
   # UART mode input registers (read-only) - Modbus function code 0x04
   REG_I_VID = 0x0000
@@ -190,14 +168,10 @@ class DFRobot_Multi_DOF_IMU(object):
   REG_I_MAG_DATA_Z_HIGH_WORD = 0x0011
   REG_I_PRESS_DATA_LOW_WORD = 0x0012
   REG_I_PRESS_DATA_HIGH_WORD = 0x0013
-  REG_I_INT1_STATUS = 0x0014
-  REG_I_INT2_STATUS = 0x0015
-  REG_I_INT3_STATUS = 0x0016
-  REG_I_INT4_STATUS = 0x0017
-  REG_I_INT_STEP_DATA_LOW_WORD = 0x0018
-  REG_I_INT_STEP_DATA_HIGH_WORD = 0x0019
-  REG_I_INT_TAP_DATA = 0x001A
-  REG_I_INT_ORIENTATION_DATA = 0x001B
+  REG_I_INT_STEP_DATA_LOW_WORD = 0x0014
+  REG_I_INT_STEP_DATA_HIGH_WORD = 0x0015
+  REG_I_INT_TAP_DATA = 0x0016
+  REG_I_INT_ORIENTATION_DATA = 0x0017
 
   # UART mode holding registers (read-write) - Modbus function code 0x03/0x06
   REG_H_RESERVED = 0x0000
@@ -537,47 +511,6 @@ class DFRobot_Multi_DOF_IMU(object):
     ret = self._write_reg(conf_reg, data)
 
     return ret == self.RET_CODE_OK
-
-  def get_int_status(self, pin):
-    '''!
-    @fn get_int_status
-    @brief Read interrupt status (unified API)
-    @param pin Interrupt pin (see IMU_INT_PIN_*)
-    @n Available pins:
-    @n - IMU_INT_PIN_INT1: Read interrupt status of INT1 pin
-    @n - IMU_INT_PIN_INT2: Read interrupt status of INT2 pin
-    @n - IMU_INT_PIN_INT3: Read interrupt status of INT3 pin
-    @n - IMU_INT_PIN_INT4: Read interrupt status of INT4 pin
-    @return Interrupt status (16-bit value)
-    @n For INT1/INT2/INT3: returns 16-bit status value
-    @n For INT4: returns 16-bit value, but only low byte is used (high byte is 0)
-    @n Can be bitwise ANDed with corresponding interrupt status macros to determine interrupt type
-    @retval 0 No interrupt or read failed
-    '''
-    if pin == self.IMU_INT_PIN_NONE or pin > self.IMU_INT_PIN_INT4:
-      return 0
-
-    if pin == self.IMU_INT_PIN_INT1:
-      status_reg = self._get_reg_addr(self.REG_I_INT1_STATUS, self.REG_I2C_INT1_STATUS)
-    elif pin == self.IMU_INT_PIN_INT2:
-      status_reg = self._get_reg_addr(self.REG_I_INT2_STATUS, self.REG_I2C_INT2_STATUS)
-    elif pin == self.IMU_INT_PIN_INT3:
-      status_reg = self._get_reg_addr(self.REG_I_INT3_STATUS, self.REG_I2C_INT3_STATUS)
-    elif pin == self.IMU_INT_PIN_INT4:
-      status_reg = self._get_reg_addr(self.REG_I_INT4_STATUS, self.REG_I2C_INT4_STATUS)
-    else:
-      return 0
-
-    data = self._read_reg(status_reg, 2)
-    if data is None:
-      return 0
-
-    int_status = data[0] | (data[1] << 8)
-
-    if pin == self.IMU_INT_PIN_INT4:
-      return int_status & 0xFF
-
-    return int_status
 
   def get_step_count(self):
     '''!

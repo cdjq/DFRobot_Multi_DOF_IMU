@@ -244,24 +244,11 @@ This Python library provides a comprehensive interface for multi-DOF IMU sensors
   def set_int(self, pin, int_type):
 
   '''!
-    @fn get_int_status
-    @brief Read interrupt status
-    @param pin Interrupt pin
-    @return int Interrupt status
-    @n Can be bitwise ANDed with corresponding interrupt status constants
-    @n INT1/INT2 status constants: INT1_2_INT_STATUS_*
-    @n INT3 status constants: INT3_INT_STATUS_*
-    @n INT4 status constants: INT4_INT_STATUS_*
-    @retval 0 No interrupt or read failed
-  '''
-  def get_int_status(self, pin):
-
-  '''!
     @fn get_step_count
     @brief Read step counter data
     @details Read current cumulative step count
-    @n After enabling step count interrupt, you can call this function at any time to read the current real step count from the step counter;
-    @n no need to wait for or depend on INT1_2_INT_STATUS_STEP_COUNTER interrupt trigger
+    @n After enabling step count, you can call this function at any time to read the current real step count from the step counter;
+    @n no need to wait for or depend on Arduino interrupt trigger
     @return int Cumulative step count (32-bit)
     @retval 0 No step data or read failed
   '''

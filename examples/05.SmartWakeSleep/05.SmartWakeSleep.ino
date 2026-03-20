@@ -188,34 +188,30 @@ void setup()
 void loop()
 {
   if (gSigMotionFlag) {
-    gSigMotionFlag  = false;
-    uint16_t status = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin1);
-    if (status & INT1_2_INT_STATUS_SIG_MOTION) {
-      if (deviceState == STATE_SLEEP) {
-        deviceState = STATE_AWAKE;
-        Serial.print("[");
-        Serial.print(millis());
-        Serial.print("] ");
-        Serial.println(">>> Device Woke Up <<<");
-      }
+    gSigMotionFlag = false;
+    if (deviceState == STATE_SLEEP) {
+      deviceState = STATE_AWAKE;
+      Serial.print("[");
+      Serial.print(millis());
+      Serial.print("] ");
+      Serial.println(">>> Device Woke Up <<<");
     }
   }
 
   if (gFlatFlag) {
-    gFlatFlag       = false;
-    uint16_t status = imu.getIntStatus(DFRobot_Multi_DOF_IMU::eImuIntPin2);
-    if (status & INT1_2_INT_STATUS_FLAT) {
-      if (deviceState == STATE_AWAKE) {
-        deviceState = STATE_SLEEP;
-        Serial.print("[");
-        Serial.print(millis());
-        Serial.print("] ");
-        Serial.println(">>> Device Entered Sleep Mode <<<");
-      }
+    gFlatFlag = false;
+    if (deviceState == STATE_AWAKE) {
+      deviceState = STATE_SLEEP;
+      Serial.print("[");
+      Serial.print(millis());
+      Serial.print("] ");
+      Serial.println(">>> Device Entered Sleep Mode <<<");
     }
   }
 
   if (deviceState == STATE_AWAKE) {
     // Can perform other tasks here, e.g., read sensor data, update display, etc.
   }
+
+  delay(200);
 }

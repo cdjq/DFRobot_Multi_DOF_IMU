@@ -263,21 +263,11 @@ To use this library, first download the library files, paste them into the \Ardu
   bool setInt(eImuIntPin_t pin, uint8_t intType);
 
   /**
-   * @fn getIntStatus
-   * @brief Read interrupt status
-   * @param pin Interrupt pin (see eImuIntPin_t)
-   * @return uint16_t Interrupt status
-   * @n Can be bitwise ANDed with corresponding interrupt status macros to determine interrupt type
-   * @retval 0 No interrupt or read failed
-   */
-  uint16_t getIntStatus(eImuIntPin_t pin);
-
-  /**
    * @fn getStepCount
    * @brief Read step counter data
    * @details Read current cumulative step count
-   * @n After enabling step count interrupt, you can call this function at any time to read the current real step count from the step counter;
-   * @n no need to wait for or depend on INT1_2_INT_STATUS_STEP_COUNTER interrupt trigger
+   * @n After enabling step count, you can call this function at any time to read the current real step count from the step counter;
+   * @n no need to wait for or depend on Arduino interrupt trigger
    * @return uint32_t Cumulative step count (32-bit)
    * @retval 0 No step data or read failed
    */

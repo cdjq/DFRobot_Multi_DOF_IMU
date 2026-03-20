@@ -163,24 +163,18 @@ def loop():
   if orientation_detected:
     orientation_detected = False
 
-    int_status = imu.get_int_status(imu.IMU_INT_PIN_INT1)
+    orient_data = imu.get_orientation()
 
-    if int_status & imu.INT1_2_INT_STATUS_ORIENTATION:
-      orient_data = imu.get_orientation()
+    orientation = (orient_data >> 8) & 0xFF  # High byte: orientation type
+    face_up_down = orient_data & 0xFF  # Low byte: face direction
 
-      orientation = (orient_data >> 8) & 0xFF  # High byte: orientation type
-      face_up_down = orient_data & 0xFF  # Low byte: face direction
+    orientation_change_count += 1
 
-      orientation_change_count += 1
-
-      print("")
-      print("Orientation change #%d" % orientation_change_count)
-      print("   Screen orientation: %s" % get_orientation_string(orientation))
-      print("   Face direction: %s" % get_face_string(face_up_down))
-      print("   Raw data: 0x%04X (Time: %.3fs)" % (orient_data, time.time()))
-
-    elif int_status != 0:
-      print("Other interrupt: 0x%04X" % int_status)
+    print("")
+    print("Orientation change #%d" % orientation_change_count)
+    print("   Screen orientation: %s" % get_orientation_string(orientation))
+    print("   Face direction: %s" % get_face_string(face_up_down))
+    print("   Raw data: 0x%04X (Time: %.3fs)" % (orient_data, time.time()))
 
 
 if __name__ == "__main__":
@@ -188,6 +182,7 @@ if __name__ == "__main__":
     setup()
     while True:
       loop()
+      time.sleep(0.2)
   except KeyboardInterrupt:
     print("\nExit.")
   finally:

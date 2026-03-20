@@ -20,8 +20,14 @@ setGyroRange	KEYWORD2
 setSensorMode	KEYWORD2
 get6dofData	KEYWORD2
 get6AxisRawData	KEYWORD2
-getAccelData	KEYWORD2
-getGyroData	KEYWORD2
+get9dofData	KEYWORD2
+get10dofData	KEYWORD2
+calibrateAltitude	KEYWORD2
+setPressOOR	KEYWORD2
+setInt	KEYWORD2
+getStepCount	KEYWORD2
+getTap	KEYWORD2
+getOrientation	KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
